@@ -19,10 +19,12 @@ umi.use(signerIdentity(signer));
         //2. Convert image to generic file.
         //3. Upload image
 
-        // const image = ???
-
-        // const [myUri] = ??? 
-        // console.log("Your image URI: ", myUri);
+        const image = await readFile("/home/zeref/Q4_Sol_Krishh/ts/cluster1/images/generug.png")
+        const genericUploader = createGenericFile(image, "NFT-Dropout-Charity", {
+            contentType: "image/png"
+        })
+        const [myUri] = await umi.uploader.upload([genericUploader])
+        console.log("Your image URI: ", myUri);
     }
     catch(error) {
         console.log("Oops.. Something went wrong", error);

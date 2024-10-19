@@ -14,30 +14,30 @@ umi.use(signerIdentity(signer));
 
 (async () => {
     try {
-        // Follow this JSON structure
         // https://docs.metaplex.com/programs/token-metadata/changelog/v1.0#json-structure
 
-        // const image = ???
-        // const metadata = {
-        //     name: "?",
-        //     symbol: "?",
-        //     description: "?",
-        //     image: "?",
-        //     attributes: [
-        //         {trait_type: '?', value: '?'}
-        //     ],
-        //     properties: {
-        //         files: [
-        //             {
-        //                 type: "image/png",
-        //                 uri: "?"
-        //             },
-        //         ]
-        //     },
-        //     creators: []
-        // };
-        // const myUri = ???
-        // console.log("Your metadata URI: ", myUri);
+        const image = "https://devnet.irys.xyz/E8XW6dfeY5HBxfM8RSgdt3YCdEHkGGeG3P6G85W3ZgPm"
+        const metadata = {
+            name: "ZEREF",
+            symbol: "ZRF",
+            description: "Created By ZEREF",
+            image,
+            attributes: [
+                {trait_type: 'something', value: 'great'}
+            ],
+            properties: {
+                files: [
+                    {
+                        type: "image/png",
+                        uri: image
+                    },
+                ]
+            },
+            creators: []
+        };
+        let myUri = await  umi.uploader.uploadJson(metadata)
+        myUri = myUri.replace("arweave.net", "devnet.irys.xyz")
+        console.log("Your metadata URI: ", myUri);
     }
     catch(error) {
         console.log("Oops.. Something went wrong", error);
