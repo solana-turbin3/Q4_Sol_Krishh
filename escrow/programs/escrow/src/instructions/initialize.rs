@@ -4,48 +4,40 @@ use anchor_spl::{associated_token::AssociatedToken, token::{Mint, TokenAccount, 
 use crate::states::escrow::Escrow;
 
 #[derive(Accounts)]
+#[instruction(seed: u64)]
 pub struct Make<'info> {
     #[account(mut)]
     pub maker: Signer<'info>,
-    #[account(
-        mint::token_program = token_program
-    )]
     pub mint_a: InterfaceAccount<'info, Mint>,
-    #[account(
-        mint::token_program = token_program
-    )]
     pub mint_b: InterfaceAccount<'info, Mint>,
     #[account(
-        associated_token::token_program = token_program,
         associated_token::mint = mint_a,
-        associated_token::authority = maker
+        associated_token::authority = maker,
     )]
     pub maker_ata_a: InterfaceAccount<'info, TokenAccount>,
-
     #[account(
-        init, 
-        seeds = [b"escrow", maker.key().as_ref()],
-        space =  Escrow::INIT_SPACE + 8,
-        bump,
-        payer = maker
+        init,
+        payer = maker,
+        seeds = [b"escrow", maker.key().as_ref(), seed.to_le_bytes().as_ref()],
+        space = 8 + Escrow::INIT_SPACE,
+        bump
     )]
     pub escrow: Account<'info, Escrow>,
     #[account(
-        init, 
-        payer= maker,
-        associated_token::authority = escrow,
+        init,
+        payer = maker,
         associated_token::mint = mint_a,
-        associated_token::token_program = token_program
+        associated_token::authority = escrow,
     )]
-    pub vault: SystemAccount<'info>,
+    pub vault: InterfaceAccount<'info, TokenAccount>,
+
+    pub associated_token_program: Program<'info, AssociatedToken>,
     pub token_program: Interface<'info, TokenInterface>,
     pub system_program: Program<'info, System>,
-    pub associated_token_program: Program<'info, AssociatedToken>
 }
 
-
 impl<'info> Make<'info> {
-    pub fn init_escrow(&mut self, seed: u64, bumps: MakeBumps) -> Result<()> {
+    pub fn init_escrow(&mut self, seed: u64, bumps: &MakeBumps) -> Result<()> {
         self.escrow.set_inner(Escrow {
             seed,
             bump: bumps.escrow,
