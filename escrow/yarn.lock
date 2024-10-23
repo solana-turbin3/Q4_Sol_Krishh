@@ -3,9 +3,9 @@
 
 
 "@babel/runtime@^7.25.0":
-  version "7.25.7"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.25.7.tgz#7ffb53c37a8f247c8c4d335e89cdf16a2e0d0fb6"
-  integrity sha512-FjoyLe754PMiYsFaN5C94ttGiOmBNYTf6pLr4xXHAT5uctHb092PBszndLDR5XA/jghQvn4n7JMHl7dmTgbm9w==
+  version "7.25.9"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.25.9.tgz#65884fd6dc255a775402cc1d9811082918f4bf00"
+  integrity sha512-4zpTHZ9Cm6L9L+uIqghQX8ZXg8HKFcjYO3qHoO8zTmRm6HQUJ8SSJ+KRvbMBZn0EGVlT4DRYeQ/6hjlyXBh+Kg==
   dependencies:
     regenerator-runtime "^0.14.0"
 
@@ -120,9 +120,9 @@
   integrity sha512-Z61JK7DKDtdKTWwLeElSEBcWGRLY8g95ic5FoQqI9CMx0ns/Ghep3B4DfcEimiKMvtamNVULVNKEsiwV3aQmXw==
 
 "@types/node@*":
-  version "22.7.8"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.7.8.tgz#a1dbf0dc5f71bdd2642fc89caef65d58747ce825"
-  integrity sha512-a922jJy31vqR5sk+kAdIENJjHblqcZ4RmERviFsER4WJcEONqxKcjNOlk0q7OUfrF5sddT+vng070cdfMlrPLg==
+  version "22.7.9"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.7.9.tgz#2bf2797b5e84702d8262ea2cf843c3c3c880d0e9"
+  integrity sha512-jrTfRC7FM6nChvU7X2KqcrgquofrWLFDeYC1hKfwNWomVvrn7JIksqf344WN2X/y8xrgqBd2dJATZV4GbatBfg==
   dependencies:
     undici-types "~6.19.2"
 
