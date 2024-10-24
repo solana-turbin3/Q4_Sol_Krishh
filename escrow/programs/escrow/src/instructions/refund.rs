@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{associated_token::AssociatedToken, token::{close_account, CloseAccount, Mint, TokenAccount}, token_interface::{transfer_checked, TokenInterface, TransferChecked}};
+use anchor_spl::{associated_token::AssociatedToken, token_interface::{transfer_checked, TokenInterface, TransferChecked, close_account, CloseAccount, Mint, TokenAccount}};
 
 use crate::states::escrow::Escrow;
 
@@ -39,14 +39,13 @@ pub struct Refund<'info> {
 
 impl<'info> Refund<'info> {
     pub fn refund_and_clean_vault(&mut self) -> Result<()> {
-        let cpi_program = self.system_program.to_account_info();
         let signer_seeds: &[&[&[u8]]] = &[&[
             b"escrow",
             self.maker.to_account_info().key.as_ref(),
             &self.escrow.seed.to_le_bytes()[..],
             &[self.escrow.bump]
         ]];
-q
+
         let transfer_accounts = TransferChecked {
             from: self.vault.to_account_info(),
             mint: self.mint_a.to_account_info(),

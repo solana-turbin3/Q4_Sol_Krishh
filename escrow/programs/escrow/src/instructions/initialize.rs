@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{associated_token::AssociatedToken, token::{Mint, TokenAccount, TransferChecked}, token_interface::{TokenInterface, transfer_checked}};
+use anchor_spl::{associated_token::AssociatedToken, token_interface::{TokenInterface ,Mint, transfer_checked, TokenAccount, TransferChecked}};
 
 use crate::states::escrow::Escrow;
 
@@ -63,6 +63,5 @@ impl<'info> Make<'info> {
         
         transfer_checked(cpi_context, deposit, self.mint_a.decimals)
 
-        Ok(())
     }
 }
