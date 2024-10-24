@@ -3,7 +3,12 @@ use anchor_lang::prelude::*;
 declare_id!("HANtaDDvQZupaFkWL1NPumiV5ZgRpVzBLwLAPkEUuvpm");
 pub mod states;
 pub mod instructions;
-use instructions::initialize::*;
+pub mod error;
+use instructions::{
+    initialize::*,
+    refund::*,
+    take::*
+};
 
 #[program]
 pub mod escrow {
@@ -15,6 +20,15 @@ pub mod escrow {
         ctx.accounts.init_escrow(seed, receive, &ctx.bumps)?;
 
         Ok(())
+    }
+
+    pub fn refund(ctx: Context<Refund> ) -> Result<()> {
+        ctx.accounts.refund_and_clean_vault()
+    }
+
+    pub fn take(ctx: Context<Take>) -> Result<()> {
+        ctx.accounts.deposit_b_amount()?;
+        ctx.accounts.withdraw_a_amount_and_close_vault()
     }
 }
 
