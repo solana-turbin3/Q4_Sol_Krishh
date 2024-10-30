@@ -103,7 +103,7 @@ impl<'info> InitStakeAccount<'info> {
         let delegate = &self.stake_account.to_account_info();
         let token_program = &self.token_account.to_account_info();
         let token_account = &self.mint_ata.to_account_info();
-        let metadata_program = &self.metadata_program.to_account_info()
+        let metadata_program = &self.metadata_program.to_account_info();
         let edition = &self.edition.to_account_info();
         let mint = &self.mint.to_account_info();
 
