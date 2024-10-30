@@ -5,16 +5,18 @@ declare_id!("CnHh8FuPfKm1pqwssQGBE7Av1z2NdQjaaQDEUo5AJKEK");
 pub mod states;
 pub mod instructions;
 
-use states::*;
-use instruction::*;
+use instructions::{
+    init_stake::*,
+    init_stake_configs::*,
+    init_user_account::*
+};
 
 #[program]
 pub mod nft_staking {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+    pub fn initialize_config(ctx: Context<InitStakeConfigs>, points_per_stake: u8, max_stake: u8, freeze_period: u32 ) -> Result<()> {
+        ctx.accounts.init(&ctx.bumps, points_per_stake, max_stake, freeze_period)
     }
 }
 
