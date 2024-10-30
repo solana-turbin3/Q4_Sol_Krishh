@@ -4,6 +4,7 @@ declare_id!("CnHh8FuPfKm1pqwssQGBE7Av1z2NdQjaaQDEUo5AJKEK");
 
 pub mod states;
 pub mod instructions;
+pub mod errors;
 
 use instructions::{
     init_stake::*,
