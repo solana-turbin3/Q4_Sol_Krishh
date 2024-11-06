@@ -1,19 +1,20 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{associated_token::AssociatedToken, metadata::{ MasterEditionAccount, Metadata, MetadataAccount}, token_interface::{
-    Mint, 
-    TokenAccount,
-    TokenInterface
-}};
-
-use crate::{
-    errors::ERRORS, states::{listing::Listing, marketplace::MarketPlace}
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    metadata::{MasterEditionAccount, Metadata, MetadataAccount},
+    token_interface::{transfer_checked, Mint, TokenAccount, TokenInterface, TransferChecked},
 };
+
+use crate::states::{listing::Listing, marketplace::MarketPlace};
 
 #[derive(Accounts)]
 pub struct InitializeListings<'info> {
     #[account(mut)]
     pub maker: Signer<'info>,
-    
+    #[account(
+        seeds = [b"marketplace", marketplace.name.as_bytes()],
+        bump = marketplace.bump
+    )]
     pub marketplace: Account<'info, MarketPlace>,
     pub maker_mint: InterfaceAccount<'info, Mint>,
     #[account(
@@ -66,5 +67,32 @@ pub struct InitializeListings<'info> {
     pub metadata_program: Program<'info, Metadata>,
     pub system_program: Program<'info, System>,
     pub associated_token_program: Program<'info, AssociatedToken>,
-    pub token_program: Interface<'info, TokenInterface>
-}   
+    pub token_program: Interface<'info, TokenInterface>,
+}
+
+impl<'info> InitializeListings<'info> {
+    pub fn init_listing(&mut self, bumps: &InitializeListingsBumps, price: u64) -> Result<()> {
+        self.listing.set_inner(Listing {
+            maker: self.maker.key(),
+            mint: self.maker_mint.key(),
+            price,
+            bump: bumps.listing,
+        });
+        Ok(())
+    }
+
+    pub fn send_nft_to_vault(&mut self) -> Result<()> {
+        let cpi_program = self.token_program.to_account_info();
+
+        let cpi_account = TransferChecked {
+            from: self.maker_ata.to_account_info(),
+            mint: self.maker_mint.to_account_info(),
+            to: self.vault.to_account_info(),
+            authority: self.maker.to_account_info(),
+        };
+
+        let cpi_context = CpiContext::new(cpi_program, cpi_account);
+
+        transfer_checked(cpi_context, 1, self.maker_mint.decimals)
+    }
+}

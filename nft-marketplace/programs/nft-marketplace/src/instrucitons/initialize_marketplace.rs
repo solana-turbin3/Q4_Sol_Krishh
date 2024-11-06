@@ -1,10 +1,7 @@
 use anchor_lang::prelude::*;
 
+use crate::states::marketplace::MarketPlace;
 use anchor_spl::token_interface::{Mint, TokenInterface};
-use crate::{
-    states::marketplace::MarketPlace,
-    errors::ERRORS
-};
 
 #[derive(Accounts)]
 #[instruction(name: String)]
@@ -34,24 +31,25 @@ pub struct InitializeMarketplace<'info> {
     )]
     pub reward_mint: InterfaceAccount<'info, Mint>,
     pub token_program: Interface<'info, TokenInterface>,
-    pub system_program: Program<'info, System> 
+    pub system_program: Program<'info, System>,
 }
 
-
 impl<'info> InitializeMarketplace<'info> {
-    pub fn init_marketplace(&mut self, name: String, bumps: &InitializeMarketplaceBumps, fee: u16) -> Result<()> {
-        self.marketplace.set_inner(
-            MarketPlace {
-                admin: self.admin.key(),
-                bump: bumps.marketplace ,
-                fee,
-                reward_bump: bumps.reward_mint,
-                treasury_bump: bumps.trasury,
-                name
-            }
-        );
+    pub fn init_marketplace(
+        &mut self,
+        name: String,
+        bumps: &InitializeMarketplaceBumps,
+        fee: u16,
+    ) -> Result<()> {
+        self.marketplace.set_inner(MarketPlace {
+            admin: self.admin.key(),
+            bump: bumps.marketplace,
+            fee,
+            reward_bump: bumps.reward_mint,
+            treasury_bump: bumps.trasury,
+            name,
+        });
 
         todo!()
     }
 }
-

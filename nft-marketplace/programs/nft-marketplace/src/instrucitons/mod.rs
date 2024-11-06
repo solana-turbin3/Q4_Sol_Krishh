@@ -1,7 +1,7 @@
 pub mod initialize_marketplace;
-pub mod purchase;
 pub mod list;
+pub mod purchase;
 
-use purchase::*;
-use list::*;
 use initialize_marketplace::*;
+use list::*;
+use purchase::*;
