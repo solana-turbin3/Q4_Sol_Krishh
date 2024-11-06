@@ -78,10 +78,13 @@ impl<'info> Purchase<'info> {
             to: self.treasury.to_account_info()
         };
 
+        let cpi_program = self.system_program.to_account_info();
+
         let cpi_context_treasury = CpiContext::new(cpi_program, cpi_acc_tresury);
 
         transfer(cpi_context_treasury, marketplace_fee)
-        
-
     }
+
+    
+
 }
