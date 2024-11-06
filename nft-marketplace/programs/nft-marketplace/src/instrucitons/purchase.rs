@@ -1,5 +1,5 @@
 use anchor_lang::{prelude::*, system_program::{Transfer, transfer}};
-use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface}};
+use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface, TransferChecked, transfer_checked}};
 
 use crate::states::{listing::Listing, marketplace::MarketPlace};
 
@@ -85,6 +85,31 @@ impl<'info> Purchase<'info> {
         transfer(cpi_context_treasury, marketplace_fee)
     }
 
-    
+    pub fn send_nft(&self) -> Result<()> {
+        
+        let listing_seeds = &[
+            &self.marketplace.key().to_bytes()[..],
+            &self.maker.key().to_bytes()[..],
+            &[self.listing.bump]
+        ];
+        
+        let signer_seeds = &[&listing_seeds[..]];
+
+        let token_program = self.token_program.to_account_info();
+
+        let cpi_accounts = TransferChecked{
+            from: self.vault.to_account_info(),
+            mint: self.maker_mint.to_account_info(),
+            to: self.taker_ata.to_account_info(),
+            authority: self.listing.to_account_info()
+        };
+
+        let cpi_context = CpiContext::new_with_signer(
+            token_program,
+            cpi_accounts,
+            signer_seeds
+        );
+        transfer_checked(cpi_context, 1, self.maker_mint.decimals)
+    }
 
 }
