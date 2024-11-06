@@ -1,5 +1,5 @@
 use anchor_lang::{prelude::*, system_program::{Transfer, transfer}};
-use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface, TransferChecked, transfer_checked}};
+use anchor_spl::{associated_token::AssociatedToken, token::{close_account, CloseAccount}, token_interface::{transfer_checked, Mint, TokenAccount, TokenInterface, TransferChecked}};
 
 use crate::states::{listing::Listing, marketplace::MarketPlace};
 
@@ -110,6 +110,32 @@ impl<'info> Purchase<'info> {
             signer_seeds
         );
         transfer_checked(cpi_context, 1, self.maker_mint.decimals)
+    }
+
+    pub fn close_vault(&self) -> Result<()> {
+
+        let listing_seeds = &[
+            &self.marketplace.key().to_bytes()[..],
+            &self.maker.key().to_bytes()[..],
+            &[self.listing.bump]
+        ];
+        
+        let signer_seeds = &[&listing_seeds[..]];
+
+        let token_program = self.token_program.to_account_info();
+
+        let close_accounts = CloseAccount{
+            account: self.vault.to_account_info(),
+            destination: self.maker.to_account_info(),
+            authority: self.listing.to_account_info()
+        };
+
+        let cpi_context = CpiContext::new_with_signer(
+            token_program,
+            close_accounts, 
+            signer_seeds);
+
+        close_account(cpi_context)
     }
 
 }
