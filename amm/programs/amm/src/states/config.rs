@@ -10,7 +10,7 @@ pub struct Configs {
     pub auth_bump: u8,
     pub fee: u16,
     pub locked: bool,
-    pub authority: Option<Pubkey>
+    pub authority: Pubkey
 }
 
 impl Configs {
