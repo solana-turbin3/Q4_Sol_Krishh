@@ -3,7 +3,7 @@ use crate::constants::*;
 
 #[account]
 pub struct Configs {
-    pub seeds: u64, //Donnno what this is yet
+    pub seeds: u64, 
     pub mint_a: Pubkey,
     pub mint_b: Pubkey,
     pub config_bump: u8,

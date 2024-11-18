@@ -33,7 +33,7 @@ pub struct InitConfig<'info> {
         payer = initializer
     )]
     pub vault_b: Box<InterfaceAccount<'info, TokenAccount>>,
-    
+
     ///CHECK This is okay
     #[account(
         seeds = [b"auth"],
