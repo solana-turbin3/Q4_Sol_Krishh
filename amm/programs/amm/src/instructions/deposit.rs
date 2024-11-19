@@ -11,7 +11,9 @@ use anchor_spl::{
         TokenAccount,
         TokenInterface,
         TransferChecked,
-        transfer_checked
+        transfer_checked,
+        MintTo,
+        mint_to
     }
 };
 
@@ -114,5 +116,26 @@ impl<'info> Deposit<'info> {
         transfer_checked(cpi_context, amount, 6)
 
     }
+
+    pub fn mint_lp(&mut self, amount: u64) -> Result<()> {
+
+        let cpi_accounts = MintTo{
+            authority: self.auth.to_account_info(),
+            mint: self.mint_lp.to_account_info(),
+            to: self.lp_account_mint.to_account_info()
+        };
+
+
+        let seeds = &[&b"auth"[..], &[self.config.auth_bump]];
+        let signer_seeds = &[&seeds[..]];
+
+
+        let ctx = CpiContext::new_with_signer(self.token_program.to_account_info(), cpi_accounts, signer_seeds);
+
+        mint_to(ctx, amount)
+    }
+
+    
+
 }
 
