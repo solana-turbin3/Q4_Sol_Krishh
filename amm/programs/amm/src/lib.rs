@@ -12,7 +12,8 @@ use instructions::{
     initialize::*,
     deposit::*,
     swap::*,
-    withdraw::*
+    withdraw::*,
+    update::*
 };
 
 #[program]
@@ -33,6 +34,13 @@ pub mod amm {
 
     pub fn withdraw(ctx: Context<Withdraw>, amount: u64, min_a: u64, min_b: u64, expiration: i64) -> Result<()> {
         ctx.accounts.withdraw(amount, min_a, min_b, expiration)
+    }
+    pub fn update(ctx: Context<Update>, lock: bool) -> Result<()> {
+        if lock {
+            ctx.accounts.lock()
+        } else {
+            ctx.accounts.un_lock()
+        }
     }
 }
 
