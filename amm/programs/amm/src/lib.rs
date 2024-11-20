@@ -5,6 +5,7 @@ declare_id!("9zmQYSuFqX5DeFkR7K6D4W2HaKWvkPmaGrVrgMTQqFDw");
 pub mod instructions;
 pub mod states;
 pub mod constants;
+pub mod helper;
 pub mod errors;
 
 #[program]

@@ -1,8 +1,9 @@
 use anchor_lang::prelude::*;
 use crate::{
-    errors::*,
-    states::config::Configs 
+    errors::AmmError,
+    states::config::Configs
 };
+use crate::{assert_non_zero, assert_not_expired, assert_not_locked};
 
 use anchor_spl::{
     associated_token::AssociatedToken, 
@@ -86,7 +87,42 @@ pub struct Deposit<'info> {
 
 
 impl<'info> Deposit<'info> {
-    pub fn deposit(&mut self, is_a: bool, amount: u64) -> Result<()> {
+
+    pub fn deposit(&mut self, amount: u64, max_x: u64, max_y: u64, expiration: i64) -> Result<()> {
+
+        assert_not_expired!(expiration);
+        assert_non_zero!([amount, max_x, max_y]);
+        assert_not_locked!(self.config.locked);
+
+        let (a, b) = match self.mint_lp.supply == 0 
+        && self.vault_a.amount == 0     
+        && self.vault_b.amount == 0 {
+            true => (max_x, max_y),
+            false => {
+                let amount = ConstantProduct::xy_deposit_amounts_from_l(
+                    self.vault_a.amount, 
+                    self.vault_b.amount, 
+                    self.mint_lp.supply, 
+                    amount, 
+                    6    
+                ).map_err(AmmError::from)?;
+
+                (
+                    amount.x,
+                    amount.y
+                )
+            }
+        };
+
+        require!(a < max_x && b < max_y, AmmError::InvalidAmount);
+
+        self.deposit_token(true, a)?;
+        self.deposit_token(false, b)?;
+
+        self.mint_lp(amount)
+    }
+
+    pub fn deposit_token(&mut self, is_a: bool, amount: u64) -> Result<()> {
 
         let mint;
 
