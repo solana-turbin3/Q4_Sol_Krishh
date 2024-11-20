@@ -4,7 +4,9 @@ use anchor_spl::{
     token_interface::{
         TokenAccount,
         TokenInterface,
-        Mint
+        Mint,
+        TransferChecked,
+        transfer_checked
     },
     associated_token::AssociatedToken
 };
@@ -61,4 +63,38 @@ pub struct Swap<'info> {
     pub system_program: Program<'info, System>,
     pub token_program: Interface<'info, TokenInterface>,
     pub associated_token_program: Program<'info, AssociatedToken>
+}
+
+
+impl<'info> Swap<'info> {
+    pub fn deposit_token(&mut self, is_a: bool, amount: u64) -> Result<()> {
+
+        let mint;
+
+        let (from, to) = if is_a {
+            mint = self.mint_a.clone();
+            (
+                self.user_account_a.to_account_info(),
+                self.vault_a.to_account_info()
+            )
+        } else {
+            mint = self.mint_b.clone();
+            (
+                self.user_account_b.to_account_info(),
+                self.vault_b.to_account_info()
+            )
+        };
+
+        let cpi_accounts = TransferChecked {
+            authority: self.user.to_account_info(),
+            from,
+            mint: mint.to_account_info(),
+            to
+        };
+
+        let cpi_context = CpiContext::new(self.token_program.to_account_info(), cpi_accounts);
+        
+        transfer_checked(cpi_context, amount, 6)
+
+    }
 }
