@@ -1,4 +1,4 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, system_program::Transfer};
 
 use anchor_spl::{
     token_interface::{
@@ -95,6 +95,47 @@ impl<'info> Swap<'info> {
         let cpi_context = CpiContext::new(self.token_program.to_account_info(), cpi_accounts);
         
         transfer_checked(cpi_context, amount, 6)
+    }
+
+    pub fn withdraw(&mut self, is_a: bool, amount: u64)-> Result<()> {
+
+        let mint;
+
+        let (from, to) = if is_a {
+            mint = self.mint_b.clone();
+
+            (
+                self.vault_b.to_account_info(),
+                self.user_account_b.to_account_info(),
+            )
+        } else {
+            mint = self.mint_a.clone();
+
+            (
+                self.vault_a.to_account_info(),
+                self.user_account_a.to_account_info(),
+            )
+        };
+
+        let seeds = &[&b"auth"[..], &[self.config.auth_bump]];
+        let signer_seeds = &[&seeds[..]];
+
+        let cpi_accounts = TransferChecked {
+            from,
+            to,
+            mint: mint.to_account_info(),
+            authority: self.auth.to_account_info()
+        };
+
+        let cpi_context = CpiContext::new_with_signer(
+            self.token_program.to_account_info(), 
+            cpi_accounts, 
+            signer_seeds
+        );
+
+        transfer_checked(cpi_context, amount,6)
 
     }
+
+
 }
