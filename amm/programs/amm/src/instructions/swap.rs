@@ -1,4 +1,4 @@
-use anchor_lang::{prelude::*, system_program::Transfer};
+use anchor_lang::prelude::*;
 
 use anchor_spl::{
     token_interface::{
@@ -14,7 +14,8 @@ use crate::{
     states::config::Configs,
     errors::AmmError,
 };
-
+use crate::{assert_non_zero, assert_not_expired, assert_not_locked};
+use constant_product_curve::{ConstantProduct, LiquidityPair};
 
 #[derive(Accounts)]
 pub struct Swap<'info> {
@@ -40,6 +41,14 @@ pub struct Swap<'info> {
         bump
     )]
     pub auth: UncheckedAccount<'info>,
+    #[account(
+        mut,
+        seeds = [b"mint_lp",config.key().as_ref()],
+        bump,
+        mint::decimals = 6,
+        mint::authority = auth
+    )]
+    pub mint_lp: Box<InterfaceAccount<'info, Mint>>,
     
     #[account(
         init_if_needed,
@@ -67,6 +76,36 @@ pub struct Swap<'info> {
 
 
 impl<'info> Swap<'info> {
+
+    pub fn swap(&mut self, is_a: bool, amount: u64, min_amt: u64, expiration: i64) -> Result<()> {
+
+        assert_non_zero!([amount, min_amt]);
+        assert_not_expired!(expiration);
+        assert_not_locked!(self.config.locked);
+
+
+        let mut curve = ConstantProduct::init(
+            self.vault_a.amount,
+            self.vault_b.amount,
+            self.mint_lp.supply,
+            self.config.fee,
+            None
+        ).map_err(AmmError::from)?;
+
+        let p = if is_a {
+            LiquidityPair::X
+        } else {
+            LiquidityPair::Y
+        };
+
+        let res = curve.swap(p, amount, min_amt).map_err(AmmError::from)?;
+
+        assert_non_zero!([res.deposit, res.withdraw]);
+
+        self.deposit_token(is_a, res.deposit)?;
+        self.withdraw(is_a, res.withdraw)
+    }
+
     pub fn deposit_token(&mut self, is_a: bool, amount: u64) -> Result<()> {
 
         let mint;
@@ -134,8 +173,6 @@ impl<'info> Swap<'info> {
         );
 
         transfer_checked(cpi_context, amount,6)
-
     }
-
 
 }
