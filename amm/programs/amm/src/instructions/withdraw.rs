@@ -13,8 +13,8 @@ use anchor_spl::{
         TokenInterface,
         TransferChecked,
         transfer_checked,
-        MintTo,
-        mint_to
+        Burn,
+        burn
     }
 };
 
@@ -123,4 +123,20 @@ impl<'info> Withdraw<'info> {
 
         transfer_checked(cpi_context, amount,6)
     }
+
+    pub fn burn(&mut self, amount: u64) -> Result<()> {
+
+        let accounts = Burn {
+            authority: self.lp.to_account_info(),
+            mint: self.mint_lp.to_account_info(),
+            from: self.lp_account_mint.to_account_info()
+        };
+
+
+        let cpi_context = CpiContext::new(self.token_program.to_account_info(), accounts);
+
+        burn(cpi_context, amount)
+
+    }
+
 }
