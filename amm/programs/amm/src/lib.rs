@@ -11,7 +11,8 @@ pub mod errors;
 use instructions::{
     initialize::*,
     deposit::*,
-    swap::*
+    swap::*,
+    withdraw::*
 };
 
 #[program]
@@ -28,6 +29,10 @@ pub mod amm {
 
     pub fn swap(ctx: Context<Swap>, is_a: bool, min_amt: u64, expiration: i64, amount: u64) -> Result<()> {
         ctx.accounts.swap(is_a, amount, min_amt, expiration)
+    }
+
+    pub fn withdraw(ctx: Context<Withdraw>, amount: u64, min_a: u64, min_b: u64, expiration: i64) -> Result<()> {
+        ctx.accounts.withdraw(amount, min_a, min_b, expiration)
     }
 }
 

@@ -86,7 +86,7 @@ pub struct Withdraw<'info> {
 
 impl<'info> Withdraw<'info> {
 
-    pub fn withdraw(&mut self, is_a: bool, amount: u64, min_a: u64, min_b: u64, expiration: i64) -> Result<()> {
+    pub fn withdraw(&mut self, amount: u64, min_a: u64, min_b: u64, expiration: i64) -> Result<()> {
 
         assert_non_zero!([amount, min_a, min_b]);
         assert_not_expired!(expiration);
