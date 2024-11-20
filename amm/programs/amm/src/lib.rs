@@ -10,7 +10,8 @@ pub mod errors;
 
 use instructions::{
     initialize::*,
-    deposit::*
+    deposit::*,
+    swap::*
 };
 
 #[program]
@@ -24,7 +25,12 @@ pub mod amm {
     pub fn deposit_tokens(ctx: Context<Deposit>, amount: u64, max_a: u64, max_b: u64, expiration: i64) -> Result<()> {
         ctx.accounts.deposit(amount, max_a, max_b, expiration)
     } 
+
+    pub fn swap(ctx: Context<Swap>, is_a: bool, min_amt: u64, expiration: i64, amount: u64) -> Result<()> {
+        ctx.accounts.swap(is_a, amount, min_amt, expiration)
+    }
 }
+
 
 #[derive(Accounts)]
 pub struct Initialize {}
