@@ -85,7 +85,31 @@ pub struct Withdraw<'info> {
 
 
 impl<'info> Withdraw<'info> {
-    pub fn withdraw(&mut self, is_a: bool, amount: u64)-> Result<()> {
+
+    pub fn withdraw(&mut self, is_a: bool, amount: u64, min_a: u64, min_b: u64, expiration: i64) -> Result<()> {
+
+        assert_non_zero!([amount, min_a, min_b]);
+        assert_not_expired!(expiration);
+        assert_not_locked!(self.config.locked);
+
+
+        let amounts = ConstantProduct::xy_withdraw_amounts_from_l(
+            self.vault_a.amount, 
+            self.vault_b.amount, 
+            self.mint_lp.supply, 
+            amount, 
+            6)
+            .map_err(AmmError::from)?;
+
+        require!(amounts.x <= min_a && amounts.y <= min_b, AmmError::SlippageExceeded);
+
+        self.withdraw_tokens(true, amounts.x)?;
+        self.withdraw_tokens(false, amounts.y)?;
+
+        self.burn(amount)
+    }
+
+    pub fn withdraw_tokens(&mut self, is_a: bool, amount: u64)-> Result<()> {
 
         let mint;
 
@@ -136,7 +160,6 @@ impl<'info> Withdraw<'info> {
         let cpi_context = CpiContext::new(self.token_program.to_account_info(), accounts);
 
         burn(cpi_context, amount)
-
     }
 
 }
