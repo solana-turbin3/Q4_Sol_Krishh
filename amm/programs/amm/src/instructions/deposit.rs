@@ -88,16 +88,16 @@ pub struct Deposit<'info> {
 
 impl<'info> Deposit<'info> {
 
-    pub fn deposit(&mut self, amount: u64, max_x: u64, max_y: u64, expiration: i64) -> Result<()> {
+    pub fn deposit(&mut self, amount: u64, max_a: u64, max_b: u64, expiration: i64) -> Result<()> {
 
         assert_not_expired!(expiration);
-        assert_non_zero!([amount, max_x, max_y]);
+        assert_non_zero!([amount, max_a, max_b]);
         assert_not_locked!(self.config.locked);
 
         let (a, b) = match self.mint_lp.supply == 0 
         && self.vault_a.amount == 0     
         && self.vault_b.amount == 0 {
-            true => (max_x, max_y),
+            true => (max_a, max_b),
             false => {
                 let amount = ConstantProduct::xy_deposit_amounts_from_l(
                     self.vault_a.amount, 
@@ -114,7 +114,7 @@ impl<'info> Deposit<'info> {
             }
         };
 
-        require!(a < max_x && b < max_y, AmmError::InvalidAmount);
+        require!(a < max_a && b < max_b, AmmError::InvalidAmount);
 
         self.deposit_token(true, a)?;
         self.deposit_token(false, b)?;
